@@ -12,7 +12,7 @@ resource "aws_codebuild_project" "build_service1" {
   
   source { 
     type      = "CODEPIPELINE" 
-    buildspec = "buildspec_service1.yml"
+    buildspec = "service/buildspec_service1.yml"
     }
 }
 
@@ -28,7 +28,7 @@ resource "aws_codebuild_project" "build_service2" {
   }
   source {
     type      = "CODEPIPELINE"
-    buildspec = "buildspec_service2.yml"
+    buildspec = "service/buildspec_service2.yml"
   }
 }
 
