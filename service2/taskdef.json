@@ -1,0 +1,21 @@
+{
+  "containerDefinitions": [
+    {
+      "name": "service2",
+      "image": "<IMAGE2_NAME>",
+      "portMappings": [
+        {
+          "hostPort": 3000,
+          "protocol": "tcp",
+          "containerPort": 3000
+        }
+      ],
+      "essential": true
+    }
+  ],
+  "family": "service2",
+  "networkMode": "awsvpc",
+  "requiresCompatibilities": ["FARGATE"],
+  "cpu": "256",
+  "memory": "512"
+}

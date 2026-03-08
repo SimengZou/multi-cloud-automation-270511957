@@ -4,8 +4,6 @@ phases:
   pre_build:
     commands:
       - echo Logging in to Amazon ECR...
-      - aws --version
-      - # Use the current account ID and region from variables or metadata
       - AWS_ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
       - REPOSITORY_URI=$AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/service1
       - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $REPOSITORY_URI
@@ -14,7 +12,8 @@ phases:
     commands:
       - echo Build started on `date`
       - echo Building the Docker image...
-      - docker build -t $REPOSITORY_URI:latest .
+      # Notice we point to the folder ./service1
+      - docker build -t $REPOSITORY_URI:latest ./service1
       - docker tag $REPOSITORY_URI:latest $REPOSITORY_URI:$CODEBUILD_RESOLVED_SOURCE_VERSION
 
   post_build:
@@ -23,12 +22,11 @@ phases:
       - echo Pushing the Docker image...
       - docker push $REPOSITORY_URI:latest
       - docker push $REPOSITORY_URI:$CODEBUILD_RESOLVED_SOURCE_VERSION
-      - echo Writing imageDetail.json...
-      - # The ImageURI must match exactly what CodeDeploy expects
+      - echo Preparing artifacts...
       - printf '{"ImageURI":"%s"}' "$REPOSITORY_URI:$CODEBUILD_RESOLVED_SOURCE_VERSION" > imageDetail.json
-      - echo Generating taskdef.json and appspec.yaml...
-      - # We use the existing task definition as a template or use a static file from the repo
-      - # Ensure your taskdef.json and appspec.yaml exist in your repo root or generate them here
+      # Copy the manifests from the subfolder to the root so artifacts can find them
+      - cp service1/appspec.yaml .
+      - cp service1/taskdef.json .
 
 artifacts:
   files:
