@@ -103,27 +103,28 @@ resource "aws_iam_role_policy" "pipeline_policy" {
     Version = "2012-10-17"
     Statement = [
       {
-        Effect   = "Allow"
-        Action   = [
-          # ... your existing S3 and CodeBuild permissions ...
-          "codedeploy:CreateDeployment",
-          "codedeploy:GetDeployment",
-          "codedeploy:GetDeploymentConfig",
-          "codedeploy:GetApplication",
-          # ADD THESE TWO:
-          "codedeploy:GetApplicationRevision",
-          "codedeploy:RegisterApplicationRevision",
-          # And ensure these ECS permissions from earlier are still there
-          "ecs:RegisterTaskDefinition",
-          "ecs:DescribeTaskDefinition",
-          "ecs:DescribeServices"
+        Effect = "Allow"
+        Action = [
+          "s3:GetObject",
+          "s3:GetObjectVersion",
+          "s3:GetBucketVersioning",
+          "s3:PutObject",
+          "s3:PutObjectAcl" # Required for cross-account or complex artifact moves
         ]
-        Resource = ["*"]
+        # Notice the /* at the end of the ARN - this is CRITICAL
+        Resource = [
+          "arn:aws:s3:::pipeline-artifacts-simeng-zou",
+          "arn:aws:s3:::pipeline-artifacts-simeng-zou/*"
+        ]
       },
       {
-        Effect   = "Allow"
-        Action   = ["iam:PassRole"]
-        Resource = ["*"]
+        Effect = "Allow"
+        Action = [
+          "codebuild:BatchGetBuilds",
+          "codebuild:StartBuild",
+          "codedeploy:*" # You already have this or the specific ones from earlier
+        ]
+        Resource = "*"
       }
     ]
   })
