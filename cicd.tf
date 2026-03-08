@@ -106,6 +106,8 @@ resource "aws_codepipeline" "main_pipeline" {
         AppSpecTemplateArtifact        = "build_output_s1"
         TaskDefinitionTemplatePath     = "taskdef.json" # CodeBuild must generate this
         AppSpecTemplatePath            = "appspec.yaml"
+        Image1ArtifactName             = "build_output_s1"
+        Image1ContainerName            = "IMAGE1_NAME"
       }
     }
     action {
@@ -123,6 +125,8 @@ resource "aws_codepipeline" "main_pipeline" {
         AppSpecTemplateArtifact        = "build_output_s2"
         TaskDefinitionTemplatePath     = "taskdef.json"
         AppSpecTemplatePath            = "appspec.yaml"
+        Image1ArtifactName             = "build_output_s2"
+        Image1ContainerName            = "IMAGE2_NAME"
       }
     }
   }
