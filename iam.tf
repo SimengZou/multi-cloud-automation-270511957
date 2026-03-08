@@ -125,6 +125,31 @@ resource "aws_iam_role_policy" "pipeline_policy" {
           "codedeploy:*" # You already have this or the specific ones from earlier
         ]
         Resource = "*"
+      },
+      {
+        Effect   = "Allow"
+        Action   = [
+          "ecs:RegisterTaskDefinition",    # The missing permission
+          "ecs:DescribeTaskDefinition",
+          "ecs:DescribeServices",
+          "ecs:CreateTaskSet",
+          "ecs:UpdateServicePrimaryTaskSet",
+          "ecs:DeleteTaskSet"
+        ]
+        Resource = "*"
+      },
+      {
+        # CRITICAL: Pipeline needs to "hand over" the execution role to ECS
+        Effect   = "Allow"
+        Action   = "iam:PassRole"
+        Resource = [
+          aws_iam_role.ecs_exec_role.arn # The role defined in your Task Definition
+        ]
+        Condition = {
+          StringEquals = {
+            "iam:PassedToService" = "ecs-tasks.amazonaws.com"
+          }
+        }
       }
     ]
   })
