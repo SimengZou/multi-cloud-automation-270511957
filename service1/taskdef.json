@@ -1,23 +1,28 @@
 {
-  "containerDefinitions": [
-    {
-      "name": "service1",
-      "image": "<IMAGE1_NAME>",
-      "portMappings": [
+    "containerDefinitions": [
         {
-          "hostPort": 3000,
-          "protocol": "tcp",
-          "containerPort": 3000
+            "name": "service1",
+            "image": "<IMAGE1_NAME>",
+            "portMappings": [
+                {
+                    "containerPort": 3000,
+                    "hostPort": 3000
+                }
+            ],
+            "logConfiguration": {
+                "logDriver": "awslogs",
+                "options": {
+                    "awslogs-group": "/ecs/service1",
+                    "awslogs-region": "ap-southeast-2",
+                    "awslogs-stream-prefix": "service1"
+                }
+            }
         }
-      ],
-      "essential": true
-    }
-  ],
-  "family": "service1",
-  "networkMode": "awsvpc",
-  "requiresCompatibilities": ["FARGATE"],
-  "cpu": "256",
-  "memory": "512",
-  "executionRoleArn": "arn:aws:iam::084375558696:role/ecs-execution-role-simeng",
-  "taskRoleArn": "arn:aws:iam::084375558696:role/ecs-execution-role-simeng"
+    ],
+    "family": "service1",
+    "requiresCompatibilities": ["FARGATE"],
+    "networkMode": "awsvpc",
+    "cpu": "256",
+    "memory": "512",
+    "executionRoleArn": "arn:aws:iam::084375558696:role/ecs-execution-role-simeng"
 }
