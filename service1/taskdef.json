@@ -17,5 +17,7 @@
   "networkMode": "awsvpc",
   "requiresCompatibilities": ["FARGATE"],
   "cpu": "256",
-  "memory": "512"
+  "memory": "512",
+  "executionRoleArn": "arn:aws:iam::084375558696:role/ecs-execution-role-simeng",
+  "taskRoleArn": "arn:aws:iam::084375558696:role/ecs-execution-role-simeng"
 }
