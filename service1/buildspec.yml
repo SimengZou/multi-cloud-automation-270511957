@@ -23,7 +23,8 @@ phases:
       - docker push $REPOSITORY_URI:latest
       - docker push $REPOSITORY_URI:$CODEBUILD_RESOLVED_SOURCE_VERSION
       - echo Preparing artifacts...
-      - printf '{"ImageURI":"%s"}' "$REPOSITORY_URI:$CODEBUILD_RESOLVED_SOURCE_VERSION" > imageDetail.json
+      - printf '{"ImageURI":"%s"}' "$REPOSITORY_URI:latest" > imageDetail.json
+      - cat imageDetail.json
       # Copy the manifests from the subfolder to the root so artifacts can find them
       - cp service1/appspec.yaml .
       - cp service1/taskdef.json .
