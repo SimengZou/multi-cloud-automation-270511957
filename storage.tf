@@ -1,5 +1,6 @@
 resource "aws_s3_bucket" "pipeline_artifacts" {
   bucket = "pipeline-artifacts-simeng-zou" # Ensure this is unique
+  force_destroy = true
 }
 
 resource "aws_s3_bucket_versioning" "artifacts_versioning" {
@@ -9,6 +10,7 @@ resource "aws_s3_bucket_versioning" "artifacts_versioning" {
 
 resource "aws_s3_bucket" "app_assets" {
   bucket = "application-assets-simeng-zou"
+  force_destroy = true
 }
 
 resource "aws_dynamodb_table" "transactions" {
