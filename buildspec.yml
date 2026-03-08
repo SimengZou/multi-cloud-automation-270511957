@@ -5,15 +5,15 @@ phases:
     commands:
       - echo Logging in to Amazon ECR...
       - AWS_ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
-      - REPOSITORY_URI=$AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/service2
+      - REPOSITORY_URI=$AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/service1
       - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $REPOSITORY_URI
 
   build:
     commands:
       - echo Build started on `date`
       - echo Building the Docker image...
-      # Notice we point to the folder ./service2
-      - docker build -t $REPOSITORY_URI:latest ./service2
+      # Notice we point to the folder ./service1
+      - docker build -t $REPOSITORY_URI:latest ./service1
       - docker tag $REPOSITORY_URI:latest $REPOSITORY_URI:$CODEBUILD_RESOLVED_SOURCE_VERSION
 
   post_build:
@@ -25,8 +25,8 @@ phases:
       - echo Preparing artifacts...
       - printf '{"ImageURI":"%s"}' "$REPOSITORY_URI:$CODEBUILD_RESOLVED_SOURCE_VERSION" > imageDetail.json
       # Copy the manifests from the subfolder to the root so artifacts can find them
-      - cp service2/appspec.yaml .
-      - cp service2/taskdef.json .
+      - cp service1/appspec.yaml .
+      - cp service1/taskdef.json .
 
 artifacts:
   files:
