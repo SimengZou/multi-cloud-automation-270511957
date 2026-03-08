@@ -104,7 +104,19 @@ resource "aws_iam_role_policy" "pipeline_policy" {
     Statement = [
       {
         Effect   = "Allow"
-        Action   = ["s3:GetObject", "s3:PutObject", "codebuild:StartBuild", "codebuild:BatchGetBuilds", "codedeploy:CreateDeployment", "codedeploy:GetDeployment", "codedeploy:GetDeploymentConfig", "codedeploy:RegisterApplicationRevision"]
+        Action   = [
+          "s3:GetObject", 
+          "s3:PutObject", 
+          "codebuild:StartBuild", 
+          "codebuild:BatchGetBuilds",
+          # ADD THESE CODEDEPLOY PERMISSIONS:
+          "codedeploy:CreateDeployment",
+          "codedeploy:GetDeployment",
+          "codedeploy:GetDeploymentConfig",
+          "codedeploy:RegisterApplicationRevision",
+          "codedeploy:GetApplication",
+          "codedeploy:GetApplicationRevision"
+        ]
         Resource = ["*"]
       },
       {
@@ -115,7 +127,6 @@ resource "aws_iam_role_policy" "pipeline_policy" {
     ]
   })
 }
-
 
 resource "aws_iam_role_policy_attachment" "codebuild_ecr" {
   # Use the resource name 'codebuild_role' defined in your section 2
