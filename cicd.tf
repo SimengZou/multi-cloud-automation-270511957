@@ -9,7 +9,11 @@ resource "aws_codebuild_project" "build_service1" {
     type            = "LINUX_CONTAINER"
     privileged_mode = true # Required to build Docker images
   }
-  source { type = "CODEPIPELINE" }
+  
+  source { 
+    type      = "CODEPIPELINE" 
+    buildspec = "buildspec_service1.yml"
+    }
 }
 
 resource "aws_codebuild_project" "build_service2" {
@@ -22,7 +26,10 @@ resource "aws_codebuild_project" "build_service2" {
     type            = "LINUX_CONTAINER"
     privileged_mode = true
   }
-  source { type = "CODEPIPELINE" }
+  source {
+    type      = "CODEPIPELINE"
+    buildspec = "buildspec_service2.yml"
+  }
 }
 
 # --- CodePipeline ---
