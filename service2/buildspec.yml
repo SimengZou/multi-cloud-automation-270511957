@@ -23,6 +23,14 @@ phases:
       - docker push $REPOSITORY_URI:latest
       - docker push $REPOSITORY_URI:$CODEBUILD_RESOLVED_SOURCE_VERSION
       - echo Preparing artifacts...
+      - echo "Cleaning and Validating URI..."
+      # This removes ALL whitespace and hidden control characters (\r, \n)
+      - CLEAN_URI=$(echo $REPOSITORY_URI:latest | sed 's/[[:space:]]//g')
+      # Force lowercase just in case a variable was capitalized
+      - CLEAN_URI=$(echo $CLEAN_URI | tr '[:upper:]' '[:lower:]')
+      - printf '{"ImageURI":"%s"}' "$CLEAN_URI" > imageDetail.json
+      - echo "Final JSON content:"
+      - cat imageDetail.json
       - printf '{"ImageURI":"%s"}' "$REPOSITORY_URI:latest" > imageDetail.json
       - cat imageDetail.json
       # Copy the manifests from the subfolder to the root so artifacts can find them
