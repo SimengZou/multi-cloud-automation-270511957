@@ -3,7 +3,7 @@ Resources:
   - TargetService:
       Type: AWS::ECS::Service
       Properties:
-        TaskDefinition: <TASK_DEFINITION_ARN> # CodeBuild will replace this
+        TaskDefinition: <TASK_DEFINITION_ARN>
         LoadBalancerInfo:
-          ContainerName: "service2"
+          ContainerName: "service2" # MUST BE service2
           ContainerPort: 3000
