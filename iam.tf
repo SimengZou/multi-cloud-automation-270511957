@@ -109,20 +109,26 @@ resource "aws_iam_role_policy" "pipeline_policy" {
           "s3:PutObject", 
           "codebuild:StartBuild", 
           "codebuild:BatchGetBuilds",
-          # ADD THESE CODEDEPLOY PERMISSIONS:
           "codedeploy:CreateDeployment",
           "codedeploy:GetDeployment",
           "codedeploy:GetDeploymentConfig",
           "codedeploy:RegisterApplicationRevision",
           "codedeploy:GetApplication",
-          "codedeploy:GetApplicationRevision"
+          # ADD THESE ECS PERMISSIONS:
+          "ecs:RegisterTaskDefinition",
+          "ecs:DescribeTaskDefinition",
+          "ecs:DescribeServices"
         ]
         Resource = ["*"]
       },
       {
+        # Ensure the pipeline can "pass" the execution role to ECS
         Effect   = "Allow"
         Action   = ["iam:PassRole"]
-        Resource = ["*"]
+        Resource = [
+            aws_iam_role.ecs_exec_role.arn,
+            aws_iam_role.codedeploy_role.arn
+        ]
       }
     ]
   })
