@@ -48,6 +48,18 @@ resource "aws_lb_target_group" "service1_tg_blue" {
   protocol    = "HTTP"
   vpc_id      = aws_vpc.main.id
   target_type = "ip"
+
+  health_check {
+    enabled             = true
+    path                = "/"
+    port                = "traffic-port"  # Uses the target group port (3000)
+    protocol            = "HTTP"
+    healthy_threshold   = 2
+    unhealthy_threshold = 3
+    timeout             = 5
+    interval            = 30
+    matcher             = "200"
+  }
 }
 
 # --- Green Target Group (New - for deployment) ---
@@ -57,6 +69,18 @@ resource "aws_lb_target_group" "service1_tg_green" {
   protocol    = "HTTP"
   vpc_id      = aws_vpc.main.id
   target_type = "ip"
+
+  health_check {
+    enabled             = true
+    path                = "/"
+    port                = "traffic-port"  # Uses the target group port (3000)
+    protocol            = "HTTP"
+    healthy_threshold   = 2
+    unhealthy_threshold = 3
+    timeout             = 5
+    interval            = 30
+    matcher             = "200"
+  }
 }
 
 # --- ALB Listener ---
@@ -90,8 +114,11 @@ resource "aws_ecs_service" "service1" {
     ignore_changes = [task_definition, load_balancer]
   }
   network_configuration {
-    subnets         = [aws_subnet.private1.id, aws_subnet.private2.id]
-    security_groups = [aws_security_group.ecs_sg.id]
+    subnets          = [aws_subnet.private1.id, aws_subnet.private2.id]
+    security_groups  = [aws_security_group.ecs_sg.id]
+    assign_public_ip = false  # Private subnets: requires a NAT Gateway to reach ECR.
+                               # If you have no NAT Gateway, move subnets to public1/public2
+                               # and set assign_public_ip = true instead.
   }
 
   load_balancer {
@@ -148,6 +175,18 @@ resource "aws_lb_target_group" "service2_tg_blue" {
   protocol    = "HTTP"
   vpc_id      = aws_vpc.main.id
   target_type = "ip"
+
+  health_check {
+    enabled             = true
+    path                = "/"
+    port                = "traffic-port"  # Uses the target group port (3000)
+    protocol            = "HTTP"
+    healthy_threshold   = 2
+    unhealthy_threshold = 3
+    timeout             = 5
+    interval            = 30
+    matcher             = "200"
+  }
 }
 
 # --- Green Target Group (New - for deployment) ---
@@ -157,6 +196,18 @@ resource "aws_lb_target_group" "service2_tg_green" {
   protocol    = "HTTP"
   vpc_id      = aws_vpc.main.id
   target_type = "ip"
+
+  health_check {
+    enabled             = true
+    path                = "/"
+    port                = "traffic-port"  # Uses the target group port (3000)
+    protocol            = "HTTP"
+    healthy_threshold   = 2
+    unhealthy_threshold = 3
+    timeout             = 5
+    interval            = 30
+    matcher             = "200"
+  }
 }
 
 # --- ALB Listener ---
@@ -181,8 +232,11 @@ resource "aws_ecs_service" "service2" {
   launch_type     = "FARGATE"
 
   network_configuration {
-    subnets         = [aws_subnet.private1.id, aws_subnet.private2.id]
-    security_groups = [aws_security_group.ecs_sg.id]
+    subnets          = [aws_subnet.private1.id, aws_subnet.private2.id]
+    security_groups  = [aws_security_group.ecs_sg.id]
+    assign_public_ip = false  # Private subnets: requires a NAT Gateway to reach ECR.
+                               # If you have no NAT Gateway, move subnets to public1/public2
+                               # and set assign_public_ip = true instead.
   }
 
   load_balancer {
