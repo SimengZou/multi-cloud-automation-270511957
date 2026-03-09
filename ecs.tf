@@ -83,8 +83,8 @@ resource "aws_lb_target_group" "service1_tg_green" {
   }
 }
 
-# --- ALB Listener ---
-# The listener initially points to the Blue Target Group
+# --- ALB Listener (Production - port 80) ---
+# CodeDeploy shifts live traffic here after green is validated
 resource "aws_lb_listener" "service1_listener" {
   load_balancer_arn = aws_lb.service1_alb.arn
   port              = "80"
@@ -93,6 +93,20 @@ resource "aws_lb_listener" "service1_listener" {
   default_action {
     type             = "forward"
     target_group_arn = aws_lb_target_group.service1_tg_blue.arn
+  }
+}
+
+# --- ALB Test Listener (port 8080) ---
+# REQUIRED for Blue/Green: CodeDeploy routes green traffic here first
+# so you can validate the new version before promoting to port 80.
+resource "aws_lb_listener" "service1_test_listener" {
+  load_balancer_arn = aws_lb.service1_alb.arn
+  port              = "8080"
+  protocol          = "HTTP"
+
+  default_action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.service1_tg_green.arn
   }
 }
 
@@ -210,8 +224,8 @@ resource "aws_lb_target_group" "service2_tg_green" {
   }
 }
 
-# --- ALB Listener ---
-# The listener initially points to the Blue Target Group
+# --- ALB Listener (Production - port 80) ---
+# CodeDeploy shifts live traffic here after green is validated
 resource "aws_lb_listener" "service2_listener" {
   load_balancer_arn = aws_lb.service2_alb.arn
   port              = "80"
@@ -220,6 +234,20 @@ resource "aws_lb_listener" "service2_listener" {
   default_action {
     type             = "forward"
     target_group_arn = aws_lb_target_group.service2_tg_blue.arn
+  }
+}
+
+# --- ALB Test Listener (port 8080) ---
+# REQUIRED for Blue/Green: CodeDeploy routes green traffic here first
+# so you can validate the new version before promoting to port 80.
+resource "aws_lb_listener" "service2_test_listener" {
+  load_balancer_arn = aws_lb.service2_alb.arn
+  port              = "8080"
+  protocol          = "HTTP"
+
+  default_action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.service2_tg_green.arn
   }
 }
 
