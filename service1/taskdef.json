@@ -12,7 +12,7 @@
             "logConfiguration": {
                 "logDriver": "awslogs",
                 "options": {
-                    "awslogs-group": "/ecs/service1",
+                    "awslogs-group": "/ecs/microservices",
                     "awslogs-region": "ap-southeast-2",
                     "awslogs-stream-prefix": "service1"
                 }

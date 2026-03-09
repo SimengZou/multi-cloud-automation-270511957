@@ -6,35 +6,27 @@ phases:
       - echo Logging in to Amazon ECR...
       - AWS_ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
       - REPOSITORY_URI=$AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/service2
-      - IMAGE_TAG=$CODEBUILD_RESOLVED_SOURCE_VERSION
+      - export IMAGE_TAG=$CODEBUILD_RESOLVED_SOURCE_VERSION
       - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $REPOSITORY_URI
 
   build:
     commands:
       - echo Build started on `date`
       - echo Building the Docker image...
-      # Notice we point to the folder ./service2
       - docker build -t $REPOSITORY_URI:latest ./service2
-      - docker tag $REPOSITORY_URI:latest $REPOSITORY_URI:$CODEBUILD_RESOLVED_SOURCE_VERSION
+      - docker tag $REPOSITORY_URI:latest $REPOSITORY_URI:$IMAGE_TAG
 
   post_build:
     commands:
       - echo Build completed on `date`
       - echo Pushing the Docker image...
       - docker push $REPOSITORY_URI:latest
-      - docker push $REPOSITORY_URI:$CODEBUILD_RESOLVED_SOURCE_VERSION
+      - docker push $REPOSITORY_URI:$IMAGE_TAG
       - echo Preparing artifacts...
-      - echo "Cleaning and Validating URI..."
-      # This removes ALL whitespace and hidden control characters (\r, \n)
-      - CLEAN_URI=$(echo $REPOSITORY_URI:latest | sed 's/[[:space:]]//g')
-      # Force lowercase just in case a variable was capitalized
-      - CLEAN_URI=$(echo $CLEAN_URI | tr '[:upper:]' '[:lower:]')
-      - printf '{"ImageURI":"%s"}' "$CLEAN_URI" > imageDetail.json
-      - echo "Final JSON content:"
       - printf '{"ImageURI":"%s"}' "$REPOSITORY_URI:$IMAGE_TAG" > imageDetail.json
+      - echo "Final JSON content:"
       - cat imageDetail.json
-      - printf '[{"name":"service2","imageUri":"%s"}]' $REPOSITORY_URI:$IMAGE_TAG > imagedefinitions.json
-      # Copy the manifests from the subfolder to the root so artifacts can find them
+      - printf '[{"name":"service2","imageUri":"%s"}]' "$REPOSITORY_URI:$IMAGE_TAG" > imagedefinitions.json
       - cp service2/appspec.yaml .
       - cp service2/taskdef.json .
 

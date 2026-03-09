@@ -98,16 +98,17 @@ resource "aws_codepipeline" "main_pipeline" {
       provider        = "CodeDeployToECS"
       input_artifacts = ["build_output_s1"]
       version         = "1"
+      run_order       = 1 # Deploy service1 first
 
       configuration = {
         ApplicationName                = aws_codedeploy_app.ecs_app.name
         DeploymentGroupName            = aws_codedeploy_deployment_group.service1_dg.deployment_group_name
         TaskDefinitionTemplateArtifact = "build_output_s1"
         AppSpecTemplateArtifact        = "build_output_s1"
-        TaskDefinitionTemplatePath     = "taskdef.json" # CodeBuild must generate this
+        TaskDefinitionTemplatePath     = "taskdef.json"
         AppSpecTemplatePath            = "appspec.yaml"
         Image1ArtifactName             = "build_output_s1"
-        Image1ContainerName            = "IMAGE1_NAME"
+        Image1ContainerName            = "IMAGE1_NAME" # Must match placeholder in taskdef.json (without angle brackets)
       }
     }
     action {
@@ -117,6 +118,7 @@ resource "aws_codepipeline" "main_pipeline" {
       provider        = "CodeDeployToECS"
       input_artifacts = ["build_output_s2"]
       version         = "1"
+      run_order       = 2 # Deploy service2 after service1 to avoid CodeDeploy app conflict
 
       configuration = {
         ApplicationName                = aws_codedeploy_app.ecs_app.name
@@ -126,7 +128,7 @@ resource "aws_codepipeline" "main_pipeline" {
         TaskDefinitionTemplatePath     = "taskdef.json"
         AppSpecTemplatePath            = "appspec.yaml"
         Image1ArtifactName             = "build_output_s2"
-        Image1ContainerName            = "IMAGE2_NAME"
+        Image1ContainerName            = "IMAGE2_NAME" # Must match placeholder in taskdef.json (without angle brackets)
       }
     }
   }
