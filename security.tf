@@ -1,6 +1,9 @@
 # --- ALB Security Group ---
 resource "aws_security_group" "alb_sg" {
-  name        = "alb-sg"
+  # name_prefix instead of name: lets Terraform create the new SG first
+  # with a unique name, attach it, then safely delete the old one.
+  # This is required when using create_before_destroy.
+  name_prefix = "alb-sg-"
   description = "Allow HTTP inbound to ALB"
   vpc_id      = aws_vpc.main.id
 
@@ -20,12 +23,15 @@ resource "aws_security_group" "alb_sg" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
-  # Outbound is defined separately below to avoid cycle
+  # Egress defined as standalone rules below to avoid cycle with ecs_sg
+  lifecycle {
+    create_before_destroy = true
+  }
 }
 
 # --- ECS Tasks Security Group ---
 resource "aws_security_group" "ecs_sg" {
-  name        = "ecs-tasks-sg"
+  name_prefix = "ecs-tasks-sg-"
   description = "Allow traffic from ALB to ECS tasks"
   vpc_id      = aws_vpc.main.id
 
@@ -37,7 +43,10 @@ resource "aws_security_group" "ecs_sg" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
-  # No ingress rule here — defined separately below to avoid cycle
+  # Ingress defined as standalone rules below to avoid cycle with alb_sg
+  lifecycle {
+    create_before_destroy = true
+  }
 }
 
 # --- Cross-references as standalone rules (breaks the cycle) ---
