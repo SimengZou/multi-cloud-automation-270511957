@@ -5,7 +5,7 @@ phases:
     commands:
       - echo Logging in to Amazon ECR...
       - AWS_ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
-      - REPOSITORY_URI=$AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/service2
+      - export REPOSITORY_URI=$AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/service2
       - export IMAGE_TAG=$CODEBUILD_RESOLVED_SOURCE_VERSION
       - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $REPOSITORY_URI
 
@@ -13,7 +13,8 @@ phases:
     commands:
       - echo Build started on `date`
       - echo Building the Docker image...
-      - docker build -t $REPOSITORY_URI:latest ./service2
+      # Build using service2/ as context — Dockerfile lives inside that folder
+      - docker build -t $REPOSITORY_URI:latest -f service2/Dockerfile service2
       - docker tag $REPOSITORY_URI:latest $REPOSITORY_URI:$IMAGE_TAG
 
   post_build:
@@ -24,7 +25,6 @@ phases:
       - docker push $REPOSITORY_URI:$IMAGE_TAG
       - echo Preparing artifacts...
       - printf '{"ImageURI":"%s"}' "$REPOSITORY_URI:$IMAGE_TAG" > imageDetail.json
-      - echo "Final JSON content:"
       - cat imageDetail.json
       - printf '[{"name":"service2","imageUri":"%s"}]' "$REPOSITORY_URI:$IMAGE_TAG" > imagedefinitions.json
       - cp service2/appspec.yaml .
