@@ -3,9 +3,6 @@ resource "aws_vpc" "main" {
  enable_dns_hostnames = true
 }
 
-resource "aws_internet_gateway" "igw" {
- vpc_id = aws_vpc.main.id
-}
 
 resource "aws_subnet" "public1" {
  vpc_id = aws_vpc.main.id
@@ -33,6 +30,9 @@ resource "aws_subnet" "private2" {
  availability_zone = "ap-southeast-2b"
 }
 
+resource "aws_internet_gateway" "igw" {
+ vpc_id = aws_vpc.main.id
+}
 
 # NAT Gateway for Private Subnets (Required to pull ECR images)
 resource "aws_eip" "nat" {

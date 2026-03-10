@@ -16,77 +16,78 @@ resource "aws_appautoscaling_target" "target_service2" {
   service_namespace  = "ecs"
 }
 
-
 resource "aws_appautoscaling_policy" "scale_out_service1" {
+  name               = "scale-out-service1"
+  policy_type        = "StepScaling"
+  resource_id        = aws_appautoscaling_target.target_service1.resource_id
+  scalable_dimension = aws_appautoscaling_target.target_service1.scalable_dimension
+  service_namespace  = "ecs"
 
- name = "scale-out-service1"
- policy_type = "StepScaling"
- resource_id = aws_appautoscaling_target.target_service1.resource_id
+  step_scaling_policy_configuration {
+    adjustment_type          = "ChangeInCapacity"
+    cooldown                 = 60   # Wait 60s before firing again
+    metric_aggregation_type  = "Average"
 
- scalable_dimension = aws_appautoscaling_target.target_service1.scalable_dimension
- service_namespace = "ecs"
-
- step_scaling_policy_configuration {
-   adjustment_type = "ChangeInCapacity"
-
-   step_adjustment {
-     metric_interval_lower_bound = 0
-     scaling_adjustment = 1
-   }
- }
+    step_adjustment {
+      metric_interval_lower_bound = 0
+      scaling_adjustment          = 1
+    }
+  }
 }
 
 resource "aws_appautoscaling_policy" "scale_in_service1" {
- name = "scale-in-service1"
- policy_type = "StepScaling"
- resource_id = aws_appautoscaling_target.target_service1.resource_id
+  name               = "scale-in-service1"
+  policy_type        = "StepScaling"
+  resource_id        = aws_appautoscaling_target.target_service1.resource_id
+  scalable_dimension = aws_appautoscaling_target.target_service1.scalable_dimension
+  service_namespace  = "ecs"
 
- scalable_dimension = aws_appautoscaling_target.target_service1.scalable_dimension
- service_namespace = "ecs"
+  step_scaling_policy_configuration {
+    adjustment_type          = "ChangeInCapacity"
+    cooldown                 = 120  # Wait 120s before scaling in again
+    metric_aggregation_type  = "Average"
 
- step_scaling_policy_configuration {
-   adjustment_type = "ChangeInCapacity"
-
-   step_adjustment {
-     metric_interval_upper_bound = 0
-     scaling_adjustment = -1
-   }
- }
+    step_adjustment {
+      metric_interval_upper_bound = 0
+      scaling_adjustment          = -1
+    }
+  }
 }
 
 resource "aws_appautoscaling_policy" "scale_out_service2" {
+  name               = "scale-out-service2"
+  policy_type        = "StepScaling"
+  resource_id        = aws_appautoscaling_target.target_service2.resource_id
+  scalable_dimension = aws_appautoscaling_target.target_service2.scalable_dimension
+  service_namespace  = "ecs"
 
- name = "scale-out-service2"
- policy_type = "StepScaling"
- resource_id = aws_appautoscaling_target.target_service2.resource_id
+  step_scaling_policy_configuration {
+    adjustment_type          = "ChangeInCapacity"
+    cooldown                 = 60
+    metric_aggregation_type  = "Average"
 
- scalable_dimension = aws_appautoscaling_target.target_service2.scalable_dimension
- service_namespace = "ecs"
-
- step_scaling_policy_configuration {
-   adjustment_type = "ChangeInCapacity"
-
-   step_adjustment {
-     metric_interval_lower_bound = 0
-     scaling_adjustment = 1
-   }
- }
+    step_adjustment {
+      metric_interval_lower_bound = 0
+      scaling_adjustment          = 1
+    }
+  }
 }
 
 resource "aws_appautoscaling_policy" "scale_in_service2" {
- name = "scale-in-service2"
- policy_type = "StepScaling"
- resource_id = aws_appautoscaling_target.target_service2.resource_id
+  name               = "scale-in-service2"
+  policy_type        = "StepScaling"
+  resource_id        = aws_appautoscaling_target.target_service2.resource_id
+  scalable_dimension = aws_appautoscaling_target.target_service2.scalable_dimension
+  service_namespace  = "ecs"
 
- scalable_dimension = aws_appautoscaling_target.target_service2.scalable_dimension
- service_namespace = "ecs"
+  step_scaling_policy_configuration {
+    adjustment_type          = "ChangeInCapacity"
+    cooldown                 = 120
+    metric_aggregation_type  = "Average"
 
- step_scaling_policy_configuration {
-   adjustment_type = "ChangeInCapacity"
-
-   step_adjustment {
-     metric_interval_upper_bound = 0
-     scaling_adjustment = -1
-   }
- }
+    step_adjustment {
+      metric_interval_upper_bound = 0
+      scaling_adjustment          = -1
+    }
+  }
 }
