@@ -84,7 +84,7 @@ resource "aws_lb_target_group" "service1_tg_green" {
 }
 
 # --- ALB Listener (Production - port 80) ---
-# CodeDeploy shifts live traffic here after green is validated
+# The listener initially points to the Blue Target Group
 resource "aws_lb_listener" "service1_listener" {
   load_balancer_arn = aws_lb.service1_alb.arn
   port              = "80"
@@ -98,7 +98,7 @@ resource "aws_lb_listener" "service1_listener" {
 
 # --- ALB Test Listener (port 8080) ---
 # REQUIRED for Blue/Green: CodeDeploy routes green traffic here first
-# so you can validate the new version before promoting to port 80.
+# so the new version can be validated before promoting to port 80.
 resource "aws_lb_listener" "service1_test_listener" {
   load_balancer_arn = aws_lb.service1_alb.arn
   port              = "8080"
@@ -125,7 +125,7 @@ resource "aws_ecs_service" "service1" {
   # task_definition and load_balancer in Terraform, otherwise Terraform 
   # will try to "undo" the Blue/Green shift every time you run apply.
   lifecycle {
-    ignore_changes = [task_definition, load_balancer]
+    ignore_changes = [task_definition, load_balancer, network_configuration]
   }
   network_configuration {
     subnets          = [aws_subnet.private1.id, aws_subnet.private2.id]
@@ -225,7 +225,7 @@ resource "aws_lb_target_group" "service2_tg_green" {
 }
 
 # --- ALB Listener (Production - port 80) ---
-# CodeDeploy shifts live traffic here after green is validated
+# The listener initially points to the Blue Target Group
 resource "aws_lb_listener" "service2_listener" {
   load_balancer_arn = aws_lb.service2_alb.arn
   port              = "80"
@@ -239,7 +239,7 @@ resource "aws_lb_listener" "service2_listener" {
 
 # --- ALB Test Listener (port 8080) ---
 # REQUIRED for Blue/Green: CodeDeploy routes green traffic here first
-# so you can validate the new version before promoting to port 80.
+# so the new version can be validated before promoting to port 80.
 resource "aws_lb_listener" "service2_test_listener" {
   load_balancer_arn = aws_lb.service2_alb.arn
   port              = "8080"
@@ -280,7 +280,7 @@ resource "aws_ecs_service" "service2" {
   # task_definition and load_balancer in Terraform, otherwise Terraform 
   # will try to "undo" the Blue/Green shift every time you run apply.
   lifecycle {
-    ignore_changes = [task_definition, load_balancer]
+    ignore_changes = [task_definition, load_balancer, network_configuration]
   }
   depends_on = [aws_ecs_cluster.cluster, aws_lb_listener.service2_listener]
 }
